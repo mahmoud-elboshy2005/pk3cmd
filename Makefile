@@ -8,7 +8,7 @@ LDFLAGS :=
 LDLIBS := -lhidapi-hidraw
 
 TARGET := pk3cmd
-SRC := src/main.c src/usb.c
+SRC := $(shell find src -name '*.c')
 OBJ := $(patsubst src/%.c, obj/%.o, $(SRC))
 
 .PHONY: all clean
