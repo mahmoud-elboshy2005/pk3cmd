@@ -91,6 +91,44 @@ bool check_comm()
   return false;
 }
 
+bool get_versions_mplab()
+{
+  uint8_t command_array[2];
+  command_array[0] = GET_VERSIONS_MPLAB;
+  command_array[1] = 0;
+  if (write_usb_mplab(command_array, sizeof(command_array)))
+  {
+    if (read_usb())
+    {
+      pickit3_helper.fw_download_success = (pickit.usb_read_array[1] == GET_VERSIONS_MPLAB &&
+                    pickit.usb_read_array[2] == 0 &&
+                    pickit.usb_read_array[5] == 0 &&
+                    pickit.usb_read_array[6] == 0) ? true : false;
+      if (pickit3_helper.fw_download_success)
+      {
+        pickit3_helper.os_typ = pickit.usb_read_array[7];
+        pickit3_helper.os_maj = pickit.usb_read_array[8];
+        pickit3_helper.os_min = pickit.usb_read_array[9];
+        pickit3_helper.os_rev = pickit.usb_read_array[10];
+
+        pickit3_helper.ap_typ = pickit.usb_read_array[11];
+        pickit3_helper.ap_maj = pickit.usb_read_array[12];
+        pickit3_helper.ap_min = pickit.usb_read_array[13];
+        pickit3_helper.ap_rev = pickit.usb_read_array[14];
+      }
+
+      pickit3_helper.magic_key = pickit.usb_read_array[31] + (pickit.usb_read_array[32] << 8) + (pickit.usb_read_array[33] << 16);
+
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  return false;
+}
+
 void disconnect_pickit2_unit()
 {
   usb_close(&usb_ctx);

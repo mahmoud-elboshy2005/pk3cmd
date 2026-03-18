@@ -43,6 +43,12 @@ extern pickit_t pickit;
 bool check_comm();
 
 /**
+ * @brief Retrieves the firmware version and device file version from the PICkit device in the format expected by MPLAB.
+ * @return true if the versions were successfully retrieved, false otherwise.
+ */
+bool get_versions_mplab();
+
+/**
  * @brief Disconnects the currently connected PICkit 2 unit by closing the USB connection.
  */
 void disconnect_pickit2_unit();
