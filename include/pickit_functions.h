@@ -8,6 +8,14 @@
 #define SCRIPT_REDIRECT_MAX_LEN 32
 #define FAMILY_SEARCH_TABLE_MAX_LEN 100
 
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "usb.h"
+#include "constants.h"
+#include "device_file.h"
+#include "device_data.h"
+
 typedef struct pickit_t pickit_t;
 struct pickit_t
 {
