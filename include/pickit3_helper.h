@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef pickit_helper_t pickit_helper_t;
+typedef struct pickit_helper_t pickit_helper_t;
 struct pickit_helper_t
 {
   bool fw_download_success;
