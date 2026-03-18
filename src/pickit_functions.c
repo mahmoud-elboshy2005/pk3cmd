@@ -91,6 +91,16 @@ bool check_comm()
   return false;
 }
 
+void disconnect_pickit2_unit()
+{
+  usb_close(&usb_ctx);
+}
+
+char *get_serial_unit_id()
+{
+  return usb_ctx.unit_id;
+}
+
 enum pickit_2_usb_t detect_pickit2_device(uint16_t pk2_id, bool read_fw)
 {
   usb_ctx_t temp_ctx;

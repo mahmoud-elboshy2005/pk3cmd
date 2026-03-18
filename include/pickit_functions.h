@@ -43,6 +43,17 @@ extern pickit_t pickit;
 bool check_comm();
 
 /**
+ * @brief Disconnects the currently connected PICkit 2 unit by closing the USB connection.
+ */
+void disconnect_pickit2_unit();
+
+/**
+ * @brief Retrieves the serial unit ID of the currently connected PICkit device.
+ * @return A pointer to a string containing the serial unit ID.
+ */
+char *get_serial_unit_id();
+
+/**
  * @brief Detects a PICkit 2 device and retrieves its information.
  * @param pk2_id The ID of the PICkit 2 device to detect.
  * @param read_fw Whether to read the firmware version.
