@@ -30,5 +30,6 @@ extern pickit_t pickit;
 
 
 bool write_usb(uint8_t command_list[], size_t len);
+bool write_usb_mplab(uint8_t command_list[], size_t len);
 
 #endif // _PICKIT_FUNCTIONS_H_

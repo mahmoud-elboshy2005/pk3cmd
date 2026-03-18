@@ -53,9 +53,6 @@ bool write_usb(uint8_t command_list[], size_t len)
   if (!command_list || len == 0 || len > PACKET_SIZE - 1) // -1 because first byte of packet is reserved for report ID (must be zero)
     return false;
 
-  if (!usb_ctx.handle)
-    return false;
-
   int bytes_written = 0;
 
   // usb_byte_count += len;
@@ -68,6 +65,37 @@ bool write_usb(uint8_t command_list[], size_t len)
   }
   
   memcpy(pickit.usb_write_array + 1, command_list, len); // copy command list to array starting at index 1.
+
+  bytes_written = usb_write_packet(usb_ctx.handle, pickit.usb_write_array, sizeof(pickit.usb_write_array));
+  
+  if (bytes_written != sizeof(pickit.usb_write_array))
+  {
+    return false;
+  }
+  return true;
+}
+
+// Simiar to write_usb but uses the format expected from an MPLAB host with the length at the end of the USB buffer
+bool write_usb_mplab(uint8_t command_list[], size_t len)
+{
+  if (!command_list || len == 0 || len > PACKET_SIZE - 1) // -1 because first byte of packet is reserved for report ID (must be zero)
+    return false;
+
+  int bytes_written = 0;
+  int command_length = len;
+
+  pickit.usb_write_array[0] = 0;                         // first byte must always be zero.        
+  for (int index = 1; index < sizeof(pickit.usb_write_array); index++)
+  {
+    pickit.usb_write_array[index] = END_OF_BUFFER;              // init array to all END_OF_BUFFER cmds.
+  }
+  memcpy(pickit.usb_write_array + 1, command_list, len);
+
+  // Emded the length as expected from an MPLAB host
+  pickit.usb_write_array[61] = (uint8_t)(command_length & 0xFF);
+  pickit.usb_write_array[62] = (uint8_t)((command_length >> 8) & 0xFF);
+  pickit.usb_write_array[63] = (uint8_t)((command_length >> 16) & 0xFF);
+  pickit.usb_write_array[64] = (uint8_t)((command_length >> 24) & 0xFF);
 
   bytes_written = usb_write_packet(usb_ctx.handle, pickit.usb_write_array, sizeof(pickit.usb_write_array));
   
