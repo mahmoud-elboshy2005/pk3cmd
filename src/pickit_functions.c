@@ -48,6 +48,48 @@ static script_redirect_t script_redirect_table[SCRIPT_REDIRECT_MAX_LEN]; // up t
 static int32_t usb_byte_count = 0;
 
 
+bool check_comm()
+{
+  uint8_t command_array[17];
+  command_array[0] = CLR_DOWNLOAD_BUFFER;
+  command_array[1] = DOWNLOAD_DATA;
+  command_array[2] = 8;
+  command_array[3] = 0x01;
+  command_array[4] = 0x02;
+  command_array[5] = 0x03;
+  command_array[6] = 0x04;
+  command_array[7] = 0x05;
+  command_array[8] = 0x06;
+  command_array[9] = 0x07;
+  command_array[10] = 0x08;
+  command_array[11] = COPY_RAM_UPLOAD;   // DL buffer starts at 0x100
+  command_array[12] = 0x00;
+  command_array[13] = 0x01;
+  command_array[14] = UPLOAD_DATA;
+  command_array[15] = CLR_DOWNLOAD_BUFFER;
+  command_array[16] = CLR_UPLOAD_BUFFER;
+
+  if (write_usb(command_array, sizeof(command_array)))
+  {
+    if (read_usb())
+    {
+      if (pickit.usb_read_array[1] == 63)
+      {
+        for (int i = 1; i < 9; i++)
+        {
+          if (pickit.usb_read_array[1 + i] != i)
+          {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+
 bool write_usb(uint8_t command_list[], size_t len)
 {
   if (!command_list || len == 0 || len > PACKET_SIZE - 1) // -1 because first byte of packet is reserved for report ID (must be zero)
