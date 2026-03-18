@@ -36,9 +36,32 @@ struct pickit_t
 
 extern pickit_t pickit;
 
+/**
+ * @brief Checks communication with the PICkit device by sending a known command sequence and verifying the response.
+ * @return true if communication is successful, false otherwise.
+ */
+bool check_comm();
 
+/**
+ * @brief Writes a command list to the PICkit device over USB.
+ * @param command_list An array of bytes representing the command list to be sent.
+ * @param len The length of the command list array.
+ * @return true if the command list was successfully written to the device, false otherwise.
+ */
 bool write_usb(uint8_t command_list[], size_t len);
+
+/**
+ * @brief Writes a command list to the PICkit device over USB in the format expected from an MPLAB host.
+ * @param command_list An array of bytes representing the command list to be sent.
+ * @param len The length of the command list array.
+ * @return true if the command list was successfully written to the device, false otherwise.
+ */
 bool write_usb_mplab(uint8_t command_list[], size_t len);
+
+/**
+ * @brief Reads data from the PICkit device over USB into the pickit.usb_read_array buffer.
+ * @return true if data was successfully read from the device, false otherwise.
+ */
 bool read_usb();
 
 #endif // _PICKIT_FUNCTIONS_H_
