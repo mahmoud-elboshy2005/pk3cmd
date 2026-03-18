@@ -304,7 +304,7 @@ bool read_usb()
   if (pickit.learn_mode)
     return true;
 
-  bytes_read = usb_read_packet(&usb_ctx, pickit.usb_read_array, sizeof(pickit.usb_read_array), 1000);
+  bytes_read = usb_read_packet(&usb_ctx, pickit.usb_read_array + 1, sizeof(pickit.usb_read_array) - 1, 1000);
   if (bytes_read == -1 || bytes_read == 0)
   {
     return false;
