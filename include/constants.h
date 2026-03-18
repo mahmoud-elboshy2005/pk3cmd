@@ -44,7 +44,7 @@ extern const char *BL_FILE_NAME_PK3; // matches the MPLAB bootlaoder version num
 #define PK2_DEVICE_ID           0x0033
 #define PK3_DEVICE_ID           0x900A
 #define PK3_MAGIC_KEY           0x336B50
-#define MPLAB_BOOTLOADER_TYPE   0x99;
+#define MPLAB_BOOTLOADER_TYPE   0x99
 
 //
 #define CONFIG_ROWS         2

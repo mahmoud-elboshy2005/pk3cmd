@@ -3,11 +3,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../include/usb.h"
 #include "../include/constants.h"
 #include "../include/utilities.h"
 #include "../include/device_file.h"
 #include "../include/device_data.h"
+#include "../include/pickit3_helper.h"
 #include "../include/pickit_functions.h"
 
 typedef struct script_redirect_t script_redirect_t;
@@ -87,6 +89,105 @@ bool check_comm()
     }
   }
   return false;
+}
+
+enum pickit_2_usb_t detect_pickit2_device(uint16_t pk2_id, bool read_fw)
+{
+  usb_ctx_t temp_ctx;
+  disconnect_pickit2_unit();
+
+  int found = find_this_device(MCHIP_VENDOR_ID, pickit.is_pk3 ? PK3_DEVICE_ID : PK2_DEVICE_ID, pk2_id, &temp_ctx);
+
+  if (found == -1)
+    return NOT_FOUND;
+  
+  // If we use this check and keep the old handles, we'll read whatever packets
+  // were read by somebody else looking for pk2 units, messing up communications.
+  // if (pk2_id != last_pk2_number)
+  //{ // new unit selected
+  last_pk2_number = pk2_id;
+  // update handle
+  usb_ctx.handle = temp_ctx.handle;
+  strncpy(usb_ctx.unit_id, temp_ctx.unit_id, sizeof(usb_ctx.unit_id));
+  //}
+
+  if (!read_fw)
+    return FOUND;
+
+  if (!pickit.is_pk3)
+  {
+    //Read firmware version - this will exit PK2Go mode if needed
+    uint8_t command_array[1];
+    command_array[0] = FIRMWARE_VERSION;
+
+    snprintf(pickit.firmware_version, sizeof(pickit.firmware_version), "%d.%02d.%02d", 2, 32, 99);
+
+    bool result = write_usb(command_array, sizeof(command_array));
+    if (result)
+    {
+      // read response
+      if (read_usb())
+      {
+        // create a version string
+        snprintf(pickit.firmware_version, sizeof(pickit.firmware_version), "%d.%02d.%02d", pickit.usb_read_array[1],
+              pickit.usb_read_array[2], pickit.usb_read_array[3]);
+        // check for minimum supported version
+        if (pickit.usb_read_array[1] == FW_VER_MAJOR_REQ)
+        {
+          if (((pickit.usb_read_array[2] == FW_VER_MINOR_REQ)
+            && (pickit.usb_read_array[3] >= FW_VER_DOT_REQ))
+            || (pickit.usb_read_array[2] > FW_VER_MINOR_REQ))
+          {
+            return FOUND;
+          }
+        }
+        if (pickit.usb_read_array[1] == 118)
+        {
+          snprintf(pickit.firmware_version, sizeof(pickit.firmware_version), "BL %d.%d", pickit.usb_read_array[7], pickit.usb_read_array[8]);
+          return BOOTLOADER;
+        }
+        return FIRMWARE_INVALID;
+      }
+      return READ_ERROR;
+    }
+    return WRITE_ERROR;
+  }
+  else
+  {
+    if (get_versions_mplab())
+    {
+      if (pickit3_helper.magic_key != PK3_MAGIC_KEY)
+      {
+        if (!pickit3_helper.fw_download_success)
+          return FIRMWARE_INVALID;
+        else if (pickit3_helper.ap_typ == MPLAB_BOOTLOADER_TYPE)
+          return BOOTLOADER;
+        else
+        {
+          // TODO: compare versions
+          return PK3_MPLAB;
+        }
+      }
+      else
+      {
+        // create a version string. skip the magic key
+        snprintf(pickit.firmware_version, sizeof(pickit.firmware_version), "%d.%02d.%02d", pickit.usb_read_array[34],
+              pickit.usb_read_array[35], pickit.usb_read_array[36]);
+        // check for minimum supported version
+        if (pickit.usb_read_array[34] == FW_VER_MAJOR_REQ_PK3)
+        {
+          if (((pickit.usb_read_array[35] == FW_VER_MINOR_REQ_PK3)
+            && (pickit.usb_read_array[36] >= FW_VER_DOT_REQ_PK3))
+            || (pickit.usb_read_array[35] > FW_VER_MINOR_REQ_PK3))
+          {
+            return FOUND;
+          }
+        }
+        return FIRMWARE_OLD_VERSION;
+      }
+    }
+    return READ_WRITE_ERROR;
+  }
 }
 
 
