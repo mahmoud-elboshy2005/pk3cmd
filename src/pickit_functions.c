@@ -1,6 +1,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 #include "../include/usb.h"
 #include "../include/constants.h"
 #include "../include/utilities.h"
@@ -43,4 +45,35 @@ static bool lvp_enabled = false;
 static uint32_t script_buffer_checksum = 0;
 static int32_t last_found_part = 0;
 static script_redirect_t script_redirect_table[SCRIPT_REDIRECT_MAX_LEN]; // up to 32 scripts in FW
-// static int32_t usb_byte_count = 0;
+static int32_t usb_byte_count = 0;
+
+
+bool write_usb(uint8_t command_list[], size_t len)
+{
+  if (!command_list || len == 0 || len > PACKET_SIZE - 1) // -1 because first byte of packet is reserved for report ID (must be zero)
+    return false;
+
+  if (!usb_ctx.handle)
+    return false;
+
+  int bytes_written = 0;
+
+  // usb_byte_count += len;
+  // usb_byte_count++;
+
+  pickit.usb_write_array[0] = 0;                         // first byte must always be zero.        
+  for (int index = 1; index < sizeof(pickit.usb_write_array); index++)
+  {
+    pickit.usb_write_array[index] = END_OF_BUFFER;              // init array to all END_OF_BUFFER cmds.
+  }
+  
+  memcpy(pickit.usb_write_array + 1, command_list, len); // copy command list to array starting at index 1.
+
+  bytes_written = usb_write_packet(usb_ctx.handle, pickit.usb_write_array, sizeof(pickit.usb_write_array));
+  
+  if (bytes_written != sizeof(pickit.usb_write_array))
+  {
+    return false;
+  }
+  return true;
+}
