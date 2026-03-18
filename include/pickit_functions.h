@@ -43,6 +43,14 @@ extern pickit_t pickit;
 bool check_comm();
 
 /**
+ * @brief Detects a PICkit 2 device and retrieves its information.
+ * @param pk2_id The ID of the PICkit 2 device to detect.
+ * @param read_fw Whether to read the firmware version.
+ * @return The status of the detection process.
+ */
+enum pickit_2_usb_t detect_pickit2_device(uint16_t pk2_id, bool read_fw);
+
+/**
  * @brief Writes a command list to the PICkit device over USB.
  * @param command_list An array of bytes representing the command list to be sent.
  * @param len The length of the command list array.
