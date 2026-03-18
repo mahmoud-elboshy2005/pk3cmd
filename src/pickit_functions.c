@@ -59,16 +59,16 @@ bool write_usb(uint8_t command_list[], size_t len)
   // usb_byte_count++;
 
   pickit.usb_write_array[0] = 0;                         // first byte must always be zero.        
-  for (int index = 1; index < sizeof(pickit.usb_write_array); index++)
+  for (size_t index = 1; index < sizeof(pickit.usb_write_array); index++)
   {
     pickit.usb_write_array[index] = END_OF_BUFFER;              // init array to all END_OF_BUFFER cmds.
   }
   
   memcpy(pickit.usb_write_array + 1, command_list, len); // copy command list to array starting at index 1.
 
-  bytes_written = usb_write_packet(usb_ctx.handle, pickit.usb_write_array, sizeof(pickit.usb_write_array));
+  bytes_written = usb_write_packet(&usb_ctx, pickit.usb_write_array, sizeof(pickit.usb_write_array));
   
-  if (bytes_written != sizeof(pickit.usb_write_array))
+  if (bytes_written != (int)sizeof(pickit.usb_write_array))
   {
     return false;
   }
@@ -85,7 +85,7 @@ bool write_usb_mplab(uint8_t command_list[], size_t len)
   int command_length = len;
 
   pickit.usb_write_array[0] = 0;                         // first byte must always be zero.        
-  for (int index = 1; index < sizeof(pickit.usb_write_array); index++)
+  for (size_t index = 1; index < sizeof(pickit.usb_write_array); index++)
   {
     pickit.usb_write_array[index] = END_OF_BUFFER;              // init array to all END_OF_BUFFER cmds.
   }
@@ -97,9 +97,9 @@ bool write_usb_mplab(uint8_t command_list[], size_t len)
   pickit.usb_write_array[63] = (uint8_t)((command_length >> 16) & 0xFF);
   pickit.usb_write_array[64] = (uint8_t)((command_length >> 24) & 0xFF);
 
-  bytes_written = usb_write_packet(usb_ctx.handle, pickit.usb_write_array, sizeof(pickit.usb_write_array));
+  bytes_written = usb_write_packet(&usb_ctx, pickit.usb_write_array, sizeof(pickit.usb_write_array));
   
-  if (bytes_written != sizeof(pickit.usb_write_array))
+  if (bytes_written != (int)sizeof(pickit.usb_write_array))
   {
     return false;
   }
@@ -113,8 +113,8 @@ bool read_usb()
   if (pickit.learn_mode)
     return true;
 
-  bytes_read = usb_read_packet(usb_ctx.handle, pickit.usb_read_array, sizeof(pickit.usb_read_array), 1000);
-  if (bytes_read != sizeof(pickit.usb_read_array))
+  bytes_read = usb_read_packet(&usb_ctx, pickit.usb_read_array, sizeof(pickit.usb_read_array), 1000);
+  if (bytes_read != (int)sizeof(pickit.usb_read_array))
   {
     return false;
   }

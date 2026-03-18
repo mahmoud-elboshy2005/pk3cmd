@@ -26,8 +26,10 @@ extern const uint8_t FW_VER_DOT_REQ_PK3;
 extern const char *FW_FILE_NAME_PK3;
 extern const char *BL_FILE_NAME_PK3; // matches the MPLAB bootlaoder version number
 
+
 #define PACKET_SIZE         65 // 64 + leading 0
 #define USB_REPORT_LENGTH   64
+
 //
 #define BIT_MASK_0  0x01
 #define BIT_MASK_1  0x02
