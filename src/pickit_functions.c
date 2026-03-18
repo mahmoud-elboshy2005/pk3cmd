@@ -105,3 +105,18 @@ bool write_usb_mplab(uint8_t command_list[], size_t len)
   }
   return true;
 }
+
+bool read_usb()
+{
+  int bytes_read = 0;
+
+  if (pickit.learn_mode)
+    return true;
+
+  bytes_read = usb_read_packet(usb_ctx.handle, pickit.usb_read_array, sizeof(pickit.usb_read_array), 1000);
+  if (bytes_read != sizeof(pickit.usb_read_array))
+  {
+    return false;
+  }
+  return true;
+}
