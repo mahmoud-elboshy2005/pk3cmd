@@ -116,6 +116,7 @@ void usb_close(usb_ctx_t *ctx)
     hid_close(ctx->handle);
     ctx->handle = NULL;
   }
+  ctx->unit_id[0] = '\0';
 
   hid_exit();
 }
